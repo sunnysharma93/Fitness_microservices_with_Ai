@@ -13,8 +13,15 @@ import org.springframework.stereotype.Service;
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
+    private final UserValidationService  userValidationService;
 
     public ActivityResponse tractActivity(ActivityRequest activityRequest) {
+
+      boolean isValidUser =   userValidationService.validateUser(activityRequest.getUserId());
+      if(!isValidUser){
+          throw new RuntimeException("Invalid user" + activityRequest.getUserId());
+      }
+
         Activity activity = Activity.builder()
                 .userId(activityRequest.getUserId())
                 .type(activityRequest.getType())
@@ -29,6 +36,7 @@ public class ActivityService {
         return maptoResponse(savedActivity);
     }
     private ActivityResponse maptoResponse(Activity activity) {
+
         ActivityResponse activityResponse = new ActivityResponse();
         activityResponse.setId(activity.getId());
         activityResponse.setUserId(activity.getUserId());

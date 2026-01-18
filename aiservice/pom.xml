@@ -13,7 +13,7 @@
     <groupId>com.fitness</groupId>
     <artifactId>activeSerivice</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>activeSerivice</name>
+    <name>aiservice</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>
