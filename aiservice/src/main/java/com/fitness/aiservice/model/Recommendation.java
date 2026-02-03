@@ -19,6 +19,8 @@ public class Recommendation {
 
     private String userId;
 
+    private String type;
+
     private String recommendation;
 
     private List<String> improvements;

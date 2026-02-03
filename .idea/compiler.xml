@@ -8,6 +8,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="eureka" />
+        <module name="activeSerivice (1)" />
       </profile>
       <profile name="Annotation profile for activeSerivice" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -19,7 +20,7 @@
         </processorPath>
         <module name="activeSerivice" />
       </profile>
-      <profile name="Annotation profile for aiservice" enabled="true">
+      <profile name="Annotation profile for userService" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -28,6 +29,15 @@
         </processorPath>
         <module name="aiservice" />
         <module name="userService" />
+      </profile>
+      <profile name="Annotation profile for activityservice" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
+        </processorPath>
+        <module name="activeSerivice (2)" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -39,6 +49,8 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="UserService" options="-parameters" />
       <module name="activeSerivice" options="-parameters" />
+      <module name="activeSerivice (1)" options="-parameters" />
+      <module name="activeSerivice (2)" options="-parameters" />
       <module name="activityservice" options="-parameters" />
       <module name="aiservice" options="-parameters" />
       <module name="eureka" options="-parameters" />
