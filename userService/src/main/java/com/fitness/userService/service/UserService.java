@@ -19,12 +19,26 @@ public class UserService {
     public UserResponse register(RegisterRequest registerRequest) {
 
         if(userRepository.existsByEmail(registerRequest.getEmail())){
-            throw new RuntimeException("email already exists");
+            // 2. ERROR FIX: Save the user to the DB and get the result back
+            User existingUser = userRepository.findByEmail(registerRequest.getEmail());
+
+            // 3. Create the Response from the SAVED user (which now has an ID and timestamps)
+            UserResponse userResponse = new UserResponse();
+            userResponse.setId(existingUser.getId());
+            userResponse.setEmail(existingUser.getEmail());
+            userResponse.setPassword(existingUser.getPassword()); // Security Best Practice: Don't return the password!
+            userResponse.setFirstName(existingUser.getFirstName());
+            userResponse.setLastName(existingUser.getLastName());
+            userResponse.setCreatedAt(existingUser.getCreatedAt());
+            userResponse.setUpdatedAt(existingUser.getUpdatedAt());
+
+            return userResponse;
         }
 
         // 1. Create the User object from the Request
         User user = new User();
         user.setEmail(registerRequest.getEmail());
+        user.setKeycloakId(registerRequest.getKeycloakId());
         user.setPassword(registerRequest.getPassword()); // Note: Ensure this is encrypted in a real app!
         user.setFirstName(registerRequest.getFirstName());
         user.setLastName(registerRequest.getLastName());
@@ -37,6 +51,7 @@ public class UserService {
         userResponse.setId(savedUser.getId());
         userResponse.setEmail(savedUser.getEmail());
         userResponse.setPassword(savedUser.getPassword()); // Security Best Practice: Don't return the password!
+        userResponse.setKeycloakId(savedUser.getKeycloakId());
         userResponse.setFirstName(savedUser.getFirstName());
         userResponse.setLastName(savedUser.getLastName());
         userResponse.setCreatedAt(savedUser.getCreatedAt());
@@ -64,6 +79,6 @@ public class UserService {
 
     public Boolean  existByUserId(String userId) {
         log.info("calling User service for {} " , userId);
-        return userRepository.existsById(userId);
+        return userRepository.existsByKeycloakId(userId);
     }
 }

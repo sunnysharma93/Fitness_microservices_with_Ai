@@ -1,0 +1,43 @@
+spring:
+  cloud:
+    config:
+      enabled: false
+      import-check:
+        enabled: false
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/airecommendationfitness
+      database: airecommendationfitness
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    listener:
+      ack-mode: record
+    consumer:
+      group-id: activity-processor-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.value.default.type: com.fitness.aiservice.model.Activity
+        spring.json.use.type.headers: false
+
+# Environment Variables mapping
+gemini:
+  api:
+    url: ${GEMINI_URL}
+    key: ${GEMINI_KEY}
+
+# Code ke ${kafka.topic.name} ke liye
+kafka:
+  topic:
+    name: activity-events
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+server:
+  port: 8083
