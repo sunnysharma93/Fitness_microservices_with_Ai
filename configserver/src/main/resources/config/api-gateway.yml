@@ -1,34 +1,15 @@
-spring:
-  application:
-    name: api-gateway
-
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwt-set-uri: http://localhost:8181/realms/Fitness.Ai/protocol/openid-connect/certs
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: user-service
-              uri: lb://USER-SERVICE
-              predicates:
-                - Path=/api/users/**
-
-            - id: activity-service
-              uri: lb://ACTIVITY-SERVICE
-              predicates:
-                - Path=/api/activities/**
-
-            - id: ai-service
-              uri: lb://AI-SERVICE
-              predicates:
-                - Path=/api/recommendations/**
-
 server:
-  port: 8080
+  port: 8081
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/fitness_user_db
+    username: postgres
+    password: "@Coding1@"
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 eureka:
   client:

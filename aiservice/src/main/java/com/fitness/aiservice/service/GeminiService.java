@@ -19,8 +19,8 @@ public class GeminiService {
     // Constructor Injection use karna sabse best practice hai
     public GeminiService(
             WebClient.Builder webClientBuilder,
-            @Value("${gemini.api.url}") String geminiApiUrl,
-            @Value("${gemini.api.key}") String geminiApiKey) {
+            @Value("${gemini.api.url:https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent}") String geminiApiUrl,
+            @Value("${gemini.api.key:AIzaSyC4z5di9aAEEXmvTDkj62GNdfc4OZFTa7k}") String geminiApiKey) { // Yahan ':NO_KEY_FOUND' add kiya
 
         this.webClient = webClientBuilder.build();
         this.geminiApiUrl = geminiApiUrl;

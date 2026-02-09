@@ -20,16 +20,16 @@ public class ActivityService {
     private final UserValidationService userValidationService;
     private final KafkaTemplate<String, Activity> kafkaTemplate;
 
-    @Value("${kafka.topic.name}")
+    @Value("${kafka.topic.name:activity-events}")
     private String topicName;
 
     public ActivityResponse trackActivity(ActivityRequest activityRequest) {
         //  Testing ke liye validation comment kar raha hoon taaki 500 error na aaye
 
-        boolean isValidUser = userValidationService.validateUser(activityRequest.getUserId());
-        if(!isValidUser){
-            throw new RuntimeException("Invalid user: " + activityRequest.getUserId());
-        }
+//        boolean isValidUser = userValidationService.validateUser(activityRequest.getUserId());
+//        if(!isValidUser){
+//            throw new RuntimeException("Invalid user: " + activityRequest.getUserId());
+//        }
 
         Activity activity = Activity.builder()
                 .userId(activityRequest.getUserId())
