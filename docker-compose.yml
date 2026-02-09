@@ -1,0 +1,160 @@
+services:
+
+  # ---------------- DATABASES ----------------
+
+  postgres-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: fitness_user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "@Coding1@"
+    ports:
+      - "5433:5432"
+    restart: always
+    networks:
+      - fitness-network
+
+  mongodb:
+    image: mongo:6
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    restart: always
+    networks:
+      - fitness-network
+
+  # ---------------- SECURITY (KEYCLOAK) ----------------
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:21.0.1
+    container_name: keycloak-server
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    ports:
+      - "8085:8080"
+    networks:
+      - fitness-network
+
+  # ---------------- KAFKA ----------------
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    networks:
+      - fitness-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - fitness-network
+
+  # ---------------- CORE SERVICES ----------------
+
+  config-server:
+    build: ./configserver
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    restart: on-failure
+    networks:
+      - fitness-network
+
+  eureka-server:
+    build: ./eureka
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+    networks:
+      - fitness-network
+
+  # ---------------- BUSINESS SERVICES ----------------
+
+  user-service:
+    build: ./userService
+    container_name: user-service
+    depends_on:
+      - postgres-db
+      - eureka-server
+      - keycloak
+    ports:
+      - "8081:8081"
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/fitness_user_db
+      DB_USER: postgres
+      DB_PASSWORD: "@Coding1@"
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    networks:
+      - fitness-network
+
+  active-service:
+    build: ./activeSerivice
+    container_name: active-service
+    depends_on:
+      - mongodb
+      - kafka
+      - eureka-server
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/aiactivityfitness
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+      KAFKA_TOPIC_NAME: ${KAFKA_TOPIC_NAME:-activity-topic}
+    restart: on-failure
+    networks:
+      - fitness-network
+
+  ai-service:
+    build: ./aiservice
+    container_name: ai-service
+    depends_on:
+      - mongodb
+      - kafka
+      - eureka-server
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-db:27017/airecommendationfitness
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      GEMINI_KEY: ${GEMINI_KEY}
+      GEMINI_URL: ${GEMINI_URL}
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+      KAFKA_TOPIC_NAME: ${KAFKA_TOPIC_NAME:-activity-topic}
+    restart: on-failure
+    networks:
+      - fitness-network
+
+  gateway:
+    build: ./gateway
+    container_name: api-gateway
+    depends_on:
+      - eureka-server
+      - keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      EUREKA_SERVER_URL: http://eureka-server:8761/eureka/
+    restart: on-failure
+    networks:
+      - fitness-network
+
+networks:
+  fitness-network:
+    driver: bridge
